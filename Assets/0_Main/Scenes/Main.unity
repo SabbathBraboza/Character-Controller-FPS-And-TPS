@@ -2144,10 +2144,12 @@ MonoBehaviour:
   SprintAccelreation: 5
   SprintSpeed: 15
   Drag: 0.5
+  MovingThreshold: 0.01
+  Gravity: 25
+  JumpSpeed: 5
   LookSenseH: 0.1
   LookSensev: 0.1
   LookLimitV: 90
-  MovingThreshold: 0.01
   characterController: {fileID: 7163391690829548969}
   PlayerCamera: {fileID: 4493602002909969414}
 --- !u!143 &7163391690829548969
@@ -2170,12 +2172,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2.7
-  m_Radius: 0.3
+  m_Radius: 0.6
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.0001
   m_MinMoveDistance: 0.00001
-  m_Center: {x: 0, y: 1.34, z: 0}
+  m_Center: {x: 0, y: 1.32, z: 0}
 --- !u!1 &7197409775315314819
 GameObject:
   m_ObjectHideFlags: 0

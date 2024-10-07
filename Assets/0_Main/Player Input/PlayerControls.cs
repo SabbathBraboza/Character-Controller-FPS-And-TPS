@@ -55,6 +55,15 @@ namespace PlayerController
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""4fa77252-8aa7-493f-985a-78bd5d3f0809"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -189,6 +198,17 @@ namespace PlayerController
                     ""action"": ""ToggleSprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""218b295c-f6ca-426c-a4f4-528e240024ff"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -200,6 +220,7 @@ namespace PlayerController
             m_PlayerMovement_Movement = m_PlayerMovement.FindAction("Movement", throwIfNotFound: true);
             m_PlayerMovement_Look = m_PlayerMovement.FindAction("Look", throwIfNotFound: true);
             m_PlayerMovement_ToggleSprint = m_PlayerMovement.FindAction("ToggleSprint", throwIfNotFound: true);
+            m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -264,6 +285,7 @@ namespace PlayerController
         private readonly InputAction m_PlayerMovement_Movement;
         private readonly InputAction m_PlayerMovement_Look;
         private readonly InputAction m_PlayerMovement_ToggleSprint;
+        private readonly InputAction m_PlayerMovement_Jump;
         public struct PlayerMovementActions
         {
             private @PlayerControls m_Wrapper;
@@ -271,6 +293,7 @@ namespace PlayerController
             public InputAction @Movement => m_Wrapper.m_PlayerMovement_Movement;
             public InputAction @Look => m_Wrapper.m_PlayerMovement_Look;
             public InputAction @ToggleSprint => m_Wrapper.m_PlayerMovement_ToggleSprint;
+            public InputAction @Jump => m_Wrapper.m_PlayerMovement_Jump;
             public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -289,6 +312,9 @@ namespace PlayerController
                 @ToggleSprint.started += instance.OnToggleSprint;
                 @ToggleSprint.performed += instance.OnToggleSprint;
                 @ToggleSprint.canceled += instance.OnToggleSprint;
+                @Jump.started += instance.OnJump;
+                @Jump.performed += instance.OnJump;
+                @Jump.canceled += instance.OnJump;
             }
 
             private void UnregisterCallbacks(IPlayerMovementActions instance)
@@ -302,6 +328,9 @@ namespace PlayerController
                 @ToggleSprint.started -= instance.OnToggleSprint;
                 @ToggleSprint.performed -= instance.OnToggleSprint;
                 @ToggleSprint.canceled -= instance.OnToggleSprint;
+                @Jump.started -= instance.OnJump;
+                @Jump.performed -= instance.OnJump;
+                @Jump.canceled -= instance.OnJump;
             }
 
             public void RemoveCallbacks(IPlayerMovementActions instance)
@@ -324,6 +353,7 @@ namespace PlayerController
             void OnMovement(InputAction.CallbackContext context);
             void OnLook(InputAction.CallbackContext context);
             void OnToggleSprint(InputAction.CallbackContext context);
+            void OnJump(InputAction.CallbackContext context);
         }
     }
 }
