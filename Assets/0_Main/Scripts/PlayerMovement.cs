@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
@@ -39,6 +40,8 @@ public class PlayerMovement : MonoBehaviour
     public float RotationMisMatch { get; private set; } = 0f;
     public bool IsRotatingToTarget {  get; private set; } = false;
 
+    private PlayerMovementState lastMovementState = PlayerMovementState.Falling;
+
     private PlayerInput playerInput;
     private PlayerState playerState;
 
@@ -47,16 +50,19 @@ public class PlayerMovement : MonoBehaviour
 
     private bool JumpLastframe = false;
     private bool IsRotatingClockWise = false;
+
     private float rotationToTargetTimer = 0f;
     private float VerticalVelocity = 0f;
     private float AntiBump;
+    private float StepOffset;
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerState = GetComponent<PlayerState>();
 
-        AntiBump = SprintSpeed;
+        AntiBump = WalkSpeed;
+        StepOffset = characterController.stepOffset;
     }
 
     private void Update()
@@ -66,8 +72,10 @@ public class PlayerMovement : MonoBehaviour
         UpdateMovementState();
     }
 
-    private void UpdateMovementState() 
+    private void UpdateMovementState()
     {
+        lastMovementState = playerState.CurrentPlayerMovementState;
+
         bool canRun = CanRun();
         bool isMovementInput = playerInput.Movement != Vector2.zero;
         bool isMovingLaterally = IsMovingLaterally();
@@ -75,15 +83,42 @@ public class PlayerMovement : MonoBehaviour
         bool isWalking = (isMovingLaterally && !canRun) || playerInput.WalkToggleOn;
         bool isGrounded = IsGrounded();
 
-        PlayerMovementState lateralState = isWalking ? PlayerMovementState.Walking:  
-            isSprintLaterally ? PlayerMovementState.Sprinting:
+        PlayerMovementState lateralState = isWalking ? PlayerMovementState.Walking :
+            isSprintLaterally ? PlayerMovementState.Sprinting :
             isMovingLaterally || isMovementInput ? PlayerMovementState.Running : PlayerMovementState.Idling;
         playerState.SetPlayerMovementState(lateralState);
 
         // Character Jumps
-        if (!isGrounded && characterController.velocity.y > 0f) playerState.SetPlayerMovementState(PlayerMovementState.Jumping);
-        
-        else if(!isGrounded && characterController.velocity.y < 0f) playerState.SetPlayerMovementState(PlayerMovementState.Falling);
+        if ((!isGrounded || JumpLastframe) && characterController.velocity.y > 0f)
+        {
+            playerState.SetPlayerMovementState(PlayerMovementState.Jumping);
+            JumpLastframe = false;
+            characterController.stepOffset = 0f;
+        }
+        else if ((!isGrounded || JumpLastframe) && characterController.velocity.y < 0f)
+        {
+            playerState.SetPlayerMovementState(PlayerMovementState.Falling);
+            JumpLastframe = false;
+            characterController.stepOffset = 0f;
+        }
+        else
+        {
+            characterController.stepOffset = StepOffset;
+        }
+    }
+
+
+    private Vector3 HandlwSteepWalls(Vector3 Velocity)
+    {
+        Vector3 normal = CharacterUtility.GetNormalWithSphereCast(characterController, GroundLayer);
+        float angle = Vector3.Angle(normal, Vector3.up);
+        bool validAngle = angle <= characterController.slopeLimit;
+
+        if (!validAngle && VerticalVelocity <0f)
+        {
+            Velocity = Vector3.ProjectOnPlane(Velocity, normal);
+        }
+        return Velocity;
     }
 
     private void HandleMovement()
@@ -107,20 +142,30 @@ public class PlayerMovement : MonoBehaviour
         newVelocity = (newVelocity.magnitude > Drag * Time.deltaTime) ? newVelocity - CurrentDrag : Vector3.zero;
         newVelocity = Vector3.ClampMagnitude(new Vector3(newVelocity.x, 0f,newVelocity.z), LateralClampMagnitude);
         newVelocity.y += VerticalVelocity;  
+        newVelocity = !isGrounded? HandlwSteepWalls(newVelocity) : newVelocity;
 
         // Player Moves 
         characterController.Move(newVelocity * Time.deltaTime);
     }
-     
+
     private void HandleVerticalMovement()
     {
         bool IsGrounded = playerState.IsGroundedState();
 
         VerticalVelocity -= Gravity * Time.deltaTime;
 
-        if (IsGrounded && VerticalVelocity < 0) VerticalVelocity = - AntiBump;
-        
-        if (playerInput.JumpPressed && IsGrounded) VerticalVelocity += AntiBump + Mathf.Sqrt(JumpSpeed * 3 * Gravity);
+        if (IsGrounded && VerticalVelocity < 0) VerticalVelocity = -AntiBump;
+
+        if (playerInput.JumpPressed && IsGrounded)
+        {
+            VerticalVelocity += AntiBump+ Mathf.Sqrt(JumpSpeed * 3 * Gravity);
+            JumpLastframe = true;
+        }
+
+        if(playerState.IsStateGroundedState(lastMovementState) && !IsGrounded)
+        {
+            VerticalVelocity += AntiBump;
+        }
     }
 
     private void LateUpdate() => UpdateCameraRotation();
@@ -197,7 +242,12 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsGroundedWhileAirborne()
     {
-        return characterController.isGrounded;
+        Vector3 normal = CharacterUtility.GetNormalWithSphereCast(characterController, GroundLayer);
+        float angle = Vector3.Angle(normal, Vector3.up);
+        bool validAngle = angle <= characterController.slopeLimit;
+
+
+        return characterController.isGrounded && validAngle;
     }
 
     private bool CanRun()

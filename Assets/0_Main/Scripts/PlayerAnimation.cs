@@ -7,15 +7,15 @@ public class PlayerAnimation : MonoBehaviour
 
     private Vector3 CurrentBlendInput = Vector3.zero;
 
-    private static int InputXHash = Animator.StringToHash("InputX");
-    private static int InputYHash = Animator.StringToHash("InputY");
-    private static int IsIdlingHash = Animator.StringToHash("IsIdling");
-    private static int IsTargetRotationHash = Animator.StringToHash("IsTargetRotation"); 
-    private static int InputMagnitudeHash = Animator.StringToHash("InputMagnitude");
-    private static int IsGroundedHash = Animator.StringToHash("IsGrounded");
-    private static int IsJumpingHash = Animator.StringToHash("IsJumping");
-    private static int IsFallingHash = Animator.StringToHash("IsFalling");
-    private static int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
+    private static readonly int InputXHash = Animator.StringToHash("InputX");
+    private static readonly int InputYHash = Animator.StringToHash("InputY");
+    private static readonly int IsIdlingHash = Animator.StringToHash("IsIdling");
+    private static readonly int IsTargetRotatHash = Animator.StringToHash("IsTargetRotation"); 
+    private static readonly int InputMagnitudeHash = Animator.StringToHash("InputMagnitude");
+    private static readonly int IsGroundedHash = Animator.StringToHash("IsGrounded");
+    private static readonly int IsJumpingHash = Animator.StringToHash("IsJumping");
+    private static readonly int IsFallingHash = Animator.StringToHash("IsFalling");
+    private static readonly int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
 
     private PlayerInput playerInput;
     private PlayerState playerState;
@@ -47,7 +47,7 @@ public class PlayerAnimation : MonoBehaviour
         anime.SetBool(IsFallingHash,IsFalling);
         anime.SetBool(IsJumpingHash, IsJumping);
         anime.SetBool(IsIdlingHash, IsIdling);
-        anime.SetBool(IsTargetRotationHash, playerMovement.IsRotatingToTarget);
+        anime.SetBool(IsTargetRotatHash, playerMovement.IsRotatingToTarget);
 
         anime.SetFloat(RotationMisMatchHash, playerMovement.RotationMisMatch);
         anime.SetFloat(InputXHash, CurrentBlendInput.x);

@@ -646,17 +646,9 @@ MonoBehaviour:
   m_Mesh: {fileID: 136975336}
   m_VersionIndex: 2445
   m_IsSelectable: 1
-  m_SelectedFaces: 04000000
-  m_SelectedEdges:
-  - a: 16
-    b: 17
-  - a: 18
-    b: 16
-  - a: 17
-    b: 19
-  - a: 19
-    b: 18
-  m_SelectedVertices: 10000000110000001200000013000000
+  m_SelectedFaces: 
+  m_SelectedEdges: []
+  m_SelectedVertices: 
 --- !u!4 &225305271
 Transform:
   m_ObjectHideFlags: 0
@@ -3707,7 +3699,7 @@ MonoBehaviour:
   Drag: 20
   MovingThreshold: 0.01
   Gravity: 25
-  JumpSpeed: 3
+  JumpSpeed: 2
   InAirAccleration: 25
   LookSenseH: 0.1
   LookSensev: 0.1
@@ -3742,7 +3734,7 @@ CharacterController:
   m_Radius: 0.6
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.0001
+  m_SkinWidth: 0.01
   m_MinMoveDistance: 0.00001
   m_Center: {x: 0, y: 1.32, z: 0}
 --- !u!1 &7197409775315314819
