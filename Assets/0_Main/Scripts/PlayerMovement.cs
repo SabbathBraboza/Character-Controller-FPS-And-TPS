@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,16 +14,25 @@ public class PlayerMovement : MonoBehaviour
     public float MovingThreshold = 0.01f;
     public float Gravity = 25f;
     public float JumpSpeed = 1f;
-    
+
+    [Space(5f)]
     [Header("Camera Settings:")]
     public float LookSenseH = 0.1f;
     public float LookSensev = 0.1f;
     public float LookLimitV = 90f;
 
     [Space(5f)]
+    [Header("Animation:")]
+    public float PlayerModelRotationSpeed = 10f;
+    public float RotationTargetTime = 0.25f; 
+
+    [Space(5f)]
     [Header("References:")]
     [SerializeField] private CharacterController characterController;
     [SerializeField] private Camera PlayerCamera;
+
+    public float RotationMisMatch { get; private set; } = 0f;
+    public bool IsRotatingToTarget {  get; private set; } = false;
 
     private PlayerInput playerInput;
     private PlayerState playerState;
@@ -30,6 +40,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 CameraRotation = Vector2.zero;
     private Vector2 PlayerRotation = Vector2.zero;
 
+
+    private bool IsRotatingClockWise = false;
+    private float rotationToTargetTimer = 0f;
     private float VerticalVelocity = 0f;
 
     private void Awake()
@@ -100,13 +113,53 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
+        UpdateCameraRotation();
+    }
+
+    private void UpdateCameraRotation()
+    {
         CameraRotation.x += LookSenseH * playerInput.Look.x;
         CameraRotation.y = Mathf.Clamp(CameraRotation.y - LookSensev * playerInput.Look.y, -LookSensev, LookLimitV);
 
         PlayerRotation.x += transform.eulerAngles.x + LookSenseH * playerInput.Look.x;
-        transform.rotation = Quaternion.Euler(0f, PlayerRotation.x,0f);
 
+        float RotationTolerance = 90f;
+        bool isIdling = playerState.CurrentPlayerMovementState == PlayerMovementState.Idling;
+        IsRotatingToTarget = rotationToTargetTimer > 0;
+
+        if (!isIdling) RotatePlayerToTarget();
+        else if (Mathf.Abs(RotationMisMatch) > RotationTolerance || IsRotatingToTarget)
+        {
+            UpdateIdleRotation(RotationTolerance);
+        }
         PlayerCamera.transform.rotation = Quaternion.Euler(CameraRotation.y, CameraRotation.x, 0f);
+
+        //Get angle between Camera And Player
+        Vector3 CamForwardProjectedXZ = new Vector3(PlayerCamera.transform.forward.x, 0, PlayerCamera.transform.forward.z).normalized;
+        Vector3 CrossProduct = Vector3.Cross(transform.forward, CamForwardProjectedXZ);
+        float sign = Mathf.Sign(Vector3.Dot(CrossProduct,transform.up));
+        RotationMisMatch = sign * Vector3.Angle(transform.forward, CamForwardProjectedXZ);
+    }
+
+    private void UpdateIdleRotation(float RotationTolerance)
+    {
+        if (Mathf.Abs(RotationMisMatch) > RotationTolerance)
+        {
+            rotationToTargetTimer = RotationTargetTime;
+            IsRotatingClockWise = RotationMisMatch > RotationTolerance;
+        }
+
+        rotationToTargetTimer -= Time.deltaTime;
+        if (IsRotatingClockWise && RotationMisMatch > 0f || !IsRotatingClockWise && RotationMisMatch < 0f)
+        {
+            RotatePlayerToTarget();
+        }
+    }
+
+    private void RotatePlayerToTarget()
+    {
+        Quaternion TargetRotationX = Quaternion.Euler(0f, PlayerRotation.x, 0f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, TargetRotationX, PlayerModelRotationSpeed * Time.deltaTime);
     }
 
     private bool IsMovingLaterally()

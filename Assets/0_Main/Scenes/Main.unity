@@ -2150,6 +2150,8 @@ MonoBehaviour:
   LookSenseH: 0.1
   LookSensev: 0.1
   LookLimitV: 90
+  PlayerModelRotationSpeed: 10
+  RotationTargetTime: 0.67
   characterController: {fileID: 7163391690829548969}
   PlayerCamera: {fileID: 4493602002909969414}
 --- !u!143 &7163391690829548969

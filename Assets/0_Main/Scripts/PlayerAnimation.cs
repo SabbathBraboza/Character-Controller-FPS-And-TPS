@@ -9,20 +9,25 @@ public class PlayerAnimation : MonoBehaviour
 
     private PlayerInput playerInput;
     private PlayerState playerState;
+    private PlayerMovement playerMovement;
+
     private Vector3 CurrentBlendInput = Vector3.zero;
 
     private static int InputXHash = Animator.StringToHash("InputX");
     private static int InputYHash = Animator.StringToHash("InputY");
+    private static int IsIdlingHash = Animator.StringToHash("IsIdling");
+    private static int IsTargetRotationHash = Animator.StringToHash("IsTargetRotation"); 
     private static int InputMagnitudeHash = Animator.StringToHash("InputMagnitude");
     private static int IsGroundedHash = Animator.StringToHash("IsGrounded");
     private static int IsJumpingHash = Animator.StringToHash("IsJumping");
     private static int IsFallingHash = Animator.StringToHash("IsFalling");
-
+    private static int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerState = GetComponent<PlayerState>();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     private void Update()
@@ -45,7 +50,10 @@ public class PlayerAnimation : MonoBehaviour
         anime.SetBool(IsGroundedHash, IsGrounded);
         anime.SetBool(IsFallingHash,IsFalling);
         anime.SetBool(IsJumpingHash, IsJumping);
+        anime.SetBool(IsIdlingHash, IsIdling);
+        anime.SetBool(IsTargetRotationHash, playerMovement.IsRotatingToTarget);
 
+        anime.SetFloat(RotationMisMatchHash, playerMovement.RotationMisMatch);
         anime.SetFloat(InputXHash, CurrentBlendInput.x);
         anime.SetFloat (InputYHash, CurrentBlendInput.y);
         anime.SetFloat(InputMagnitudeHash,CurrentBlendInput.magnitude);
