@@ -48,6 +48,15 @@ namespace PlayerController
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""4fa77252-8aa7-493f-985a-78bd5d3f0809"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ToggleSprint"",
                     ""type"": ""Button"",
                     ""id"": ""38472b39-585e-4bb1-a335-83b7db70fa67"",
@@ -57,9 +66,9 @@ namespace PlayerController
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Jump"",
+                    ""name"": ""Togglewalk"",
                     ""type"": ""Button"",
-                    ""id"": ""4fa77252-8aa7-493f-985a-78bd5d3f0809"",
+                    ""id"": ""8765211f-e6e7-41e1-b844-a1e0ee3fe936"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -209,6 +218,17 @@ namespace PlayerController
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""52e9e39a-6516-4f83-8725-56bfce89653b"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Togglewalk"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -219,8 +239,9 @@ namespace PlayerController
             m_PlayerMovement = asset.FindActionMap("PlayerMovement", throwIfNotFound: true);
             m_PlayerMovement_Movement = m_PlayerMovement.FindAction("Movement", throwIfNotFound: true);
             m_PlayerMovement_Look = m_PlayerMovement.FindAction("Look", throwIfNotFound: true);
-            m_PlayerMovement_ToggleSprint = m_PlayerMovement.FindAction("ToggleSprint", throwIfNotFound: true);
             m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
+            m_PlayerMovement_ToggleSprint = m_PlayerMovement.FindAction("ToggleSprint", throwIfNotFound: true);
+            m_PlayerMovement_Togglewalk = m_PlayerMovement.FindAction("Togglewalk", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -284,16 +305,18 @@ namespace PlayerController
         private List<IPlayerMovementActions> m_PlayerMovementActionsCallbackInterfaces = new List<IPlayerMovementActions>();
         private readonly InputAction m_PlayerMovement_Movement;
         private readonly InputAction m_PlayerMovement_Look;
-        private readonly InputAction m_PlayerMovement_ToggleSprint;
         private readonly InputAction m_PlayerMovement_Jump;
+        private readonly InputAction m_PlayerMovement_ToggleSprint;
+        private readonly InputAction m_PlayerMovement_Togglewalk;
         public struct PlayerMovementActions
         {
             private @PlayerControls m_Wrapper;
             public PlayerMovementActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
             public InputAction @Movement => m_Wrapper.m_PlayerMovement_Movement;
             public InputAction @Look => m_Wrapper.m_PlayerMovement_Look;
-            public InputAction @ToggleSprint => m_Wrapper.m_PlayerMovement_ToggleSprint;
             public InputAction @Jump => m_Wrapper.m_PlayerMovement_Jump;
+            public InputAction @ToggleSprint => m_Wrapper.m_PlayerMovement_ToggleSprint;
+            public InputAction @Togglewalk => m_Wrapper.m_PlayerMovement_Togglewalk;
             public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -309,12 +332,15 @@ namespace PlayerController
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
-                @ToggleSprint.started += instance.OnToggleSprint;
-                @ToggleSprint.performed += instance.OnToggleSprint;
-                @ToggleSprint.canceled += instance.OnToggleSprint;
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @ToggleSprint.started += instance.OnToggleSprint;
+                @ToggleSprint.performed += instance.OnToggleSprint;
+                @ToggleSprint.canceled += instance.OnToggleSprint;
+                @Togglewalk.started += instance.OnTogglewalk;
+                @Togglewalk.performed += instance.OnTogglewalk;
+                @Togglewalk.canceled += instance.OnTogglewalk;
             }
 
             private void UnregisterCallbacks(IPlayerMovementActions instance)
@@ -325,12 +351,15 @@ namespace PlayerController
                 @Look.started -= instance.OnLook;
                 @Look.performed -= instance.OnLook;
                 @Look.canceled -= instance.OnLook;
-                @ToggleSprint.started -= instance.OnToggleSprint;
-                @ToggleSprint.performed -= instance.OnToggleSprint;
-                @ToggleSprint.canceled -= instance.OnToggleSprint;
                 @Jump.started -= instance.OnJump;
                 @Jump.performed -= instance.OnJump;
                 @Jump.canceled -= instance.OnJump;
+                @ToggleSprint.started -= instance.OnToggleSprint;
+                @ToggleSprint.performed -= instance.OnToggleSprint;
+                @ToggleSprint.canceled -= instance.OnToggleSprint;
+                @Togglewalk.started -= instance.OnTogglewalk;
+                @Togglewalk.performed -= instance.OnTogglewalk;
+                @Togglewalk.canceled -= instance.OnTogglewalk;
             }
 
             public void RemoveCallbacks(IPlayerMovementActions instance)
@@ -352,8 +381,9 @@ namespace PlayerController
         {
             void OnMovement(InputAction.CallbackContext context);
             void OnLook(InputAction.CallbackContext context);
-            void OnToggleSprint(InputAction.CallbackContext context);
             void OnJump(InputAction.CallbackContext context);
+            void OnToggleSprint(InputAction.CallbackContext context);
+            void OnTogglewalk(InputAction.CallbackContext context);
         }
     }
 }

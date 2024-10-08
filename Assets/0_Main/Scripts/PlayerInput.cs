@@ -12,6 +12,7 @@ public class PlayerInput : MonoBehaviour,PlayerControls.IPlayerMovementActions
     public Vector2 Look { get; private set; } // Player Camera Move
     public bool SprintToggleOn { get; private set; }   // Player Sprint Toggle on bool Check
     public bool JumpPressed {  get; private set; } // Player Jump bool Check
+    public bool WalkToggleOn { get; private set; } // Player Walk Toggle on bool Check
 
 
     private void OnEnable()
@@ -57,5 +58,12 @@ public class PlayerInput : MonoBehaviour,PlayerControls.IPlayerMovementActions
         if (!context.performed)return;
 
         JumpPressed = true;
+    }
+
+    public void OnTogglewalk(InputAction.CallbackContext context)
+    {
+        if(!context.performed)return;
+
+        WalkToggleOn = !WalkToggleOn;
     }
 }

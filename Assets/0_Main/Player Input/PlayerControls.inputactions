@@ -24,6 +24,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "4fa77252-8aa7-493f-985a-78bd5d3f0809",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ToggleSprint",
                     "type": "Button",
                     "id": "38472b39-585e-4bb1-a335-83b7db70fa67",
@@ -33,9 +42,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Jump",
+                    "name": "Togglewalk",
                     "type": "Button",
-                    "id": "4fa77252-8aa7-493f-985a-78bd5d3f0809",
+                    "id": "8765211f-e6e7-41e1-b844-a1e0ee3fe936",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -183,6 +192,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "52e9e39a-6516-4f83-8725-56bfce89653b",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Togglewalk",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

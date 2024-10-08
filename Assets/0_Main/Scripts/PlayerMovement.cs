@@ -1,11 +1,11 @@
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Values:")]
+    public float WalkAcceleration = 1f;
+    public float WalkSpeed = 1.5f;
     public float RunAcceleration = 0.25f;
     public float RunSpeed = 4f;
     public float SprintAccelreation = 0.5f;
@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     public float MovingThreshold = 0.01f;
     public float Gravity = 25f;
     public float JumpSpeed = 1f;
+    public float InAirAccleration = 0.15f;
 
     [Space(5f)]
     [Header("Camera Settings:")]
@@ -24,7 +25,11 @@ public class PlayerMovement : MonoBehaviour
     [Space(5f)]
     [Header("Animation:")]
     public float PlayerModelRotationSpeed = 10f;
-    public float RotationTargetTime = 0.25f; 
+    public float RotationTargetTime = 0.25f;
+
+    [Space(5f)]
+    [Header("Environment Layer:")]
+     public LayerMask GroundLayer;
 
     [Space(5f)]
     [Header("References:")]
@@ -40,15 +45,18 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 CameraRotation = Vector2.zero;
     private Vector2 PlayerRotation = Vector2.zero;
 
-
+    private bool JumpLastframe = false;
     private bool IsRotatingClockWise = false;
     private float rotationToTargetTimer = 0f;
     private float VerticalVelocity = 0f;
+    private float AntiBump;
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerState = GetComponent<PlayerState>();
+
+        AntiBump = SprintSpeed;
     }
 
     private void Update()
@@ -58,14 +66,17 @@ public class PlayerMovement : MonoBehaviour
         UpdateMovementState();
     }
 
-    private void UpdateMovementState()
+    private void UpdateMovementState() 
     {
+        bool canRun = CanRun();
         bool isMovementInput = playerInput.Movement != Vector2.zero;
         bool isMovingLaterally = IsMovingLaterally();
         bool isSprintLaterally = playerInput.SprintToggleOn && isMovingLaterally;
+        bool isWalking = (isMovingLaterally && !canRun) || playerInput.WalkToggleOn;
         bool isGrounded = IsGrounded();
 
-        PlayerMovementState lateralState =  isSprintLaterally ? PlayerMovementState.Sprinting:
+        PlayerMovementState lateralState = isWalking ? PlayerMovementState.Walking:  
+            isSprintLaterally ? PlayerMovementState.Sprinting:
             isMovingLaterally || isMovementInput ? PlayerMovementState.Running : PlayerMovementState.Idling;
         playerState.SetPlayerMovementState(lateralState);
 
@@ -78,10 +89,11 @@ public class PlayerMovement : MonoBehaviour
     private void HandleMovement()
     {
         bool isSprinting =  playerState.CurrentPlayerMovementState == PlayerMovementState.Sprinting;
-        bool isGrounded = playerState.IsGroundedState();        
+        bool isGrounded = playerState.IsGroundedState();
+        bool isWalking = playerState.CurrentPlayerMovementState == PlayerMovementState.Walking;
 
-        float LateralAcceleration =  isSprinting ? SprintAccelreation : RunAcceleration;
-        float LateralClampMagnitude = isSprinting ? SprintSpeed : RunSpeed;
+        float LateralAcceleration = !isGrounded ? InAirAccleration : isWalking ? WalkAcceleration: isSprinting ? SprintAccelreation : RunAcceleration;
+        float LateralClampMagnitude = !isGrounded ? SprintSpeed: isWalking ? WalkSpeed : isSprinting ? SprintSpeed : RunSpeed;
 
         Vector3 CameraForwardXZ = new Vector3(PlayerCamera.transform.forward.x, 0f, PlayerCamera.transform.forward.z).normalized;
         Vector3 CameraRightXZ = new Vector3(PlayerCamera.transform.right.x, 0f, PlayerCamera.transform.right.z).normalized;
@@ -93,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
         // Player Drag
         Vector3 CurrentDrag = newVelocity.normalized * Drag * Time.deltaTime;
         newVelocity = (newVelocity.magnitude > Drag * Time.deltaTime) ? newVelocity - CurrentDrag : Vector3.zero;
-        newVelocity = Vector3.ClampMagnitude(newVelocity, LateralClampMagnitude);
+        newVelocity = Vector3.ClampMagnitude(new Vector3(newVelocity.x, 0f,newVelocity.z), LateralClampMagnitude);
         newVelocity.y += VerticalVelocity;  
 
         // Player Moves 
@@ -104,18 +116,16 @@ public class PlayerMovement : MonoBehaviour
     {
         bool IsGrounded = playerState.IsGroundedState();
 
-        if(IsGrounded && VerticalVelocity <0) VerticalVelocity = 0;
-
         VerticalVelocity -= Gravity * Time.deltaTime;
 
-        if (playerInput.JumpPressed && IsGrounded) VerticalVelocity += Mathf.Sqrt(JumpSpeed * 3 * Gravity);
+        if (IsGrounded && VerticalVelocity < 0) VerticalVelocity = - AntiBump;
+        
+        if (playerInput.JumpPressed && IsGrounded) VerticalVelocity += AntiBump + Mathf.Sqrt(JumpSpeed * 3 * Gravity);
     }
 
-    private void LateUpdate()
-    {
-        UpdateCameraRotation();
-    }
+    private void LateUpdate() => UpdateCameraRotation();
 
+     #region Camera 
     private void UpdateCameraRotation()
     {
         CameraRotation.x += LookSenseH * playerInput.Look.x;
@@ -140,6 +150,7 @@ public class PlayerMovement : MonoBehaviour
         float sign = Mathf.Sign(Vector3.Dot(CrossProduct,transform.up));
         RotationMisMatch = sign * Vector3.Angle(transform.forward, CamForwardProjectedXZ);
     }
+    #endregion
 
     private void UpdateIdleRotation(float RotationTolerance)
     {
@@ -150,6 +161,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         rotationToTargetTimer -= Time.deltaTime;
+
         if (IsRotatingClockWise && RotationMisMatch > 0f || !IsRotatingClockWise && RotationMisMatch < 0f)
         {
             RotatePlayerToTarget();
@@ -171,6 +183,25 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsGrounded()
     {
+        bool grounded = playerState.IsGroundedState() ? IsGroundedWhileGrounded() : IsGroundedWhileAirborne();  
         return characterController.isGrounded;
+    }
+
+    private bool IsGroundedWhileGrounded()
+    {
+        Vector3 spherePosition = new Vector3(transform.position.x,transform.position.y - characterController.radius, transform.position.z);
+
+        bool grounded = Physics.CheckSphere(spherePosition, characterController.radius, GroundLayer, QueryTriggerInteraction.Ignore);
+        return grounded;
+    }
+
+    private bool IsGroundedWhileAirborne()
+    {
+        return characterController.isGrounded;
+    }
+
+    private bool CanRun()
+    {
+        return playerInput.Movement.y >= Mathf.Abs(playerInput.Movement.x);
     }
 }

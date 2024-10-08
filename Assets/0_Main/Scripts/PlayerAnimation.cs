@@ -1,15 +1,9 @@
-using System.Reflection;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
     [SerializeField] private Animator anime;
     [SerializeField] private float LocomotionBlendSpeed = 0.2f;
-
-    private PlayerInput playerInput;
-    private PlayerState playerState;
-    private PlayerMovement playerMovement;
 
     private Vector3 CurrentBlendInput = Vector3.zero;
 
@@ -23,6 +17,10 @@ public class PlayerAnimation : MonoBehaviour
     private static int IsFallingHash = Animator.StringToHash("IsFalling");
     private static int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
 
+    private PlayerInput playerInput;
+    private PlayerState playerState;
+    private PlayerMovement playerMovement;
+
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
@@ -30,11 +28,8 @@ public class PlayerAnimation : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
     }
 
-    private void Update()
-    {
-        UpdateAnimationState();
-    }
-
+    private void Update() => UpdateAnimationState();
+    
     private void UpdateAnimationState()
     {
         bool IsIdling = playerState.CurrentPlayerMovementState == PlayerMovementState.Idling;
@@ -42,9 +37,10 @@ public class PlayerAnimation : MonoBehaviour
         bool IsFalling = playerState.CurrentPlayerMovementState == PlayerMovementState.Falling;
         bool IsJumping = playerState.CurrentPlayerMovementState == PlayerMovementState.Jumping;
         bool IsSprinting = playerState.CurrentPlayerMovementState == PlayerMovementState.Sprinting;
+        bool IsRunning = playerState.CurrentPlayerMovementState == PlayerMovementState.Running;
         bool IsGrounded = playerState.IsGroundedState();
 
-        Vector2 InputTarget = IsSprinting ? playerInput.Movement * 1.5f : playerInput.Movement;
+        Vector2 InputTarget = IsSprinting ? playerInput.Movement * 1.5f : IsRunning ? playerInput.Movement *1f : playerInput.Movement * 0.5f;
         CurrentBlendInput = Vector3.Lerp(CurrentBlendInput, InputTarget, LocomotionBlendSpeed * Time.deltaTime);
 
         anime.SetBool(IsGroundedHash, IsGrounded);
