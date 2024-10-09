@@ -8,18 +8,22 @@ public class PlayerAnimation : MonoBehaviour
 
     private Vector3 CurrentBlendInput = Vector3.zero;
 
+    //Movement Aniamtion Hash
     private static readonly int InputXHash = Animator.StringToHash("InputX");
     private static readonly int InputYHash = Animator.StringToHash("InputY");
     private static readonly int IsIdlingHash = Animator.StringToHash("IsIdling");
-    private static readonly int IsTargetRotatHash = Animator.StringToHash("IsTargetRotation"); 
-    private static readonly int InputMagnitudeHash = Animator.StringToHash("InputMagnitude");
     private static readonly int IsGroundedHash = Animator.StringToHash("IsGrounded");
     private static readonly int IsJumpingHash = Animator.StringToHash("IsJumping");
     private static readonly int IsFallingHash = Animator.StringToHash("IsFalling");
+    private static readonly int InputMagnitudeHash = Animator.StringToHash("InputMagnitude");
+
+    // Camera Animation Hash
+    private static readonly int IsTargetRotatHash = Animator.StringToHash("IsTargetRotating"); 
     private static readonly int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
+
+    // Action Animation Hash
     private static readonly int Attacking1Hash = Animator.StringToHash("IsAttacking1");
     private static readonly int Attacking2Hash = Animator.StringToHash("IsAttacking2");
-    private static readonly int GotHitHash = Animator.StringToHash("IsGotHit");
     private static readonly int PlayingActionHash = Animator.StringToHash("IsPlayingAction");
 
     private int[] ActionHash;
@@ -36,7 +40,7 @@ public class PlayerAnimation : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         playerInputAction = GetComponent<PlayerInputAction>();
 
-        ActionHash = new int[] { Attacking1Hash, Attacking2Hash, GotHitHash };
+        ActionHash = new int[] { Attacking1Hash, Attacking2Hash };
     }
 
     private void Update() => UpdateAnimationState();
@@ -69,9 +73,6 @@ public class PlayerAnimation : MonoBehaviour
 
         anime.SetBool(Attacking1Hash, playerInputAction.Attack1Pressed);
         anime.SetBool(Attacking2Hash, playerInputAction.Attack2Pressed);
-        anime.SetBool(GotHitHash , playerInputAction.GotHurt);
-
         anime.SetBool(PlayingActionHash, IsAction);
-
     }
 }

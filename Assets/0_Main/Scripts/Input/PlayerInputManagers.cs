@@ -16,7 +16,7 @@ public class PlayerInputManagers : MonoBehaviour
        }
 
        Instance = this;
-        DontDestroyOnLoad(gameObject);
+      
     }
 
     private void OnEnable()
@@ -27,7 +27,10 @@ public class PlayerInputManagers : MonoBehaviour
 
     private void OnDisable()
     {
-        PlayerControls.Disable();
+        if (PlayerControls != null)
+        {
+            PlayerControls.Disable();
+        }
     }
 
 }

@@ -7,8 +7,6 @@ public class PlayerInputAction : MonoBehaviour, PlayerControls.IPlayerActionActi
     public bool Attack1Pressed { get; private set; }
     public bool Attack2Pressed { get; private set; }
     public bool GotHurt {  get; private set; }
-
-
     private void OnEnable()
     {
         if (PlayerInputManagers.Instance?.PlayerControls == null)
@@ -30,6 +28,7 @@ public class PlayerInputAction : MonoBehaviour, PlayerControls.IPlayerActionActi
         PlayerInputManagers.Instance.PlayerControls.PlayerAction.Disable();
         PlayerInputManagers.Instance.PlayerControls.PlayerAction.RemoveCallbacks(this);
     }
+
 
     private void LateUpdate()
     {

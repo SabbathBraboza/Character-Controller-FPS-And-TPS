@@ -81,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
         bool isMovementInput = playerInput.Movement != Vector2.zero;
         bool isMovingLaterally = IsMovingLaterally();
         bool isSprintLaterally = playerInput.SprintToggleOn && isMovingLaterally;
-        bool isWalking = (isMovingLaterally && !canRun) || playerInput.WalkToggleOn;
+        bool isWalking = isMovingLaterally && (!canRun || playerInput.WalkToggleOn);
         bool isGrounded = IsGrounded();
 
         PlayerMovementState lateralState = isWalking ? PlayerMovementState.Walking :
