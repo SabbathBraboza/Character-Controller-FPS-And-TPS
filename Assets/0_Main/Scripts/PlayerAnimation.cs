@@ -40,7 +40,8 @@ public class PlayerAnimation : MonoBehaviour
         bool IsRunning = playerState.CurrentPlayerMovementState == PlayerMovementState.Running;
         bool IsGrounded = playerState.IsGroundedState();
 
-        Vector2 InputTarget = IsSprinting ? playerInput.Movement * 1.5f : IsRunning ? playerInput.Movement *1f : playerInput.Movement * 0.5f;
+        bool IsRunBlendValue = IsRunning || IsJumping || IsFalling;
+        Vector2 InputTarget = IsSprinting ? playerInput.Movement * 1.5f : IsRunBlendValue ? playerInput.Movement *1f : playerInput.Movement * 0.5f;
         CurrentBlendInput = Vector3.Lerp(CurrentBlendInput, InputTarget, LocomotionBlendSpeed * Time.deltaTime);
 
         anime.SetBool(IsGroundedHash, IsGrounded);

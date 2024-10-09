@@ -7,7 +7,6 @@ public class PlayerInput : MonoBehaviour,PlayerControls.IPlayerMovementActions
 {
     [SerializeField] private bool HoldToSprint = true;  // Player Sprint hold bool Checks
 
-    public PlayerControls PlayerControls { get; private set; }  // Player Action Map
     public Vector2 Movement { get; private set; }  //Player Movement Vector 3
     public Vector2 Look { get; private set; } // Player Camera Move
     public bool SprintToggleOn { get; private set; }   // Player Sprint Toggle on bool Check
@@ -17,17 +16,24 @@ public class PlayerInput : MonoBehaviour,PlayerControls.IPlayerMovementActions
 
     private void OnEnable()
     {
-        PlayerControls = new PlayerControls();
-        PlayerControls.Enable();
-
-        PlayerControls.PlayerMovement.Enable();
-        PlayerControls.PlayerMovement.SetCallbacks(this);
+        if(PlayerInputManagers.Instance?.PlayerControls == null)
+        {
+            Debug.Log("Player Controls Are Not Initialized - cannot enable");
+            return;
+        }
+        PlayerInputManagers.Instance.PlayerControls.PlayerMovement.Enable();
+        PlayerInputManagers.Instance.PlayerControls.PlayerMovement.SetCallbacks(this);
     }
 
     private void OnDisable()
     {
-        PlayerControls.PlayerMovement.Disable();
-        PlayerControls.PlayerMovement.RemoveCallbacks(this);
+        if (PlayerInputManagers.Instance?.PlayerControls == null)
+        {
+            Debug.Log("Player Controls Are Not Initialized - cannot disable");
+            return;
+        }
+        PlayerInputManagers.Instance.PlayerControls.PlayerMovement.Disable();
+        PlayerInputManagers.Instance.PlayerControls.PlayerMovement.RemoveCallbacks(this);
     }
 
     private void LateUpdate() => JumpPressed = false;

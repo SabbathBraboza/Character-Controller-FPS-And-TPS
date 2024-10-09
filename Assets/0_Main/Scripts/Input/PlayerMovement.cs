@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     public float Gravity = 25f;
     public float JumpSpeed = 1f;
     public float InAirAccleration = 0.15f;
+    public float TermaialVelocity = 2f;
 
     [Space(5f)]
     [Header("Camera Settings:")]
@@ -165,6 +166,11 @@ public class PlayerMovement : MonoBehaviour
         if(playerState.IsStateGroundedState(lastMovementState) && !IsGrounded)
         {
             VerticalVelocity += AntiBump;
+        }
+
+        if(Mathf.Abs(VerticalVelocity) > Mathf.Abs(TermaialVelocity))
+        {
+            VerticalVelocity = -1f *Mathf.Abs(TermaialVelocity);
         }
     }
 
