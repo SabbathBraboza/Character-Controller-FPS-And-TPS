@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
@@ -16,16 +17,26 @@ public class PlayerAnimation : MonoBehaviour
     private static readonly int IsJumpingHash = Animator.StringToHash("IsJumping");
     private static readonly int IsFallingHash = Animator.StringToHash("IsFalling");
     private static readonly int RotationMisMatchHash = Animator.StringToHash("RotationMisMatch");
+    private static readonly int Attacking1Hash = Animator.StringToHash("IsAttacking1");
+    private static readonly int Attacking2Hash = Animator.StringToHash("IsAttacking2");
+    private static readonly int GotHitHash = Animator.StringToHash("IsGotHit");
+    private static readonly int PlayingActionHash = Animator.StringToHash("IsPlayingAction");
+
+    private int[] ActionHash;
 
     private PlayerInput playerInput;
     private PlayerState playerState;
     private PlayerMovement playerMovement;
+    private PlayerInputAction playerInputAction;
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerState = GetComponent<PlayerState>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerInputAction = GetComponent<PlayerInputAction>();
+
+        ActionHash = new int[] { Attacking1Hash, Attacking2Hash, GotHitHash };
     }
 
     private void Update() => UpdateAnimationState();
@@ -39,6 +50,7 @@ public class PlayerAnimation : MonoBehaviour
         bool IsSprinting = playerState.CurrentPlayerMovementState == PlayerMovementState.Sprinting;
         bool IsRunning = playerState.CurrentPlayerMovementState == PlayerMovementState.Running;
         bool IsGrounded = playerState.IsGroundedState();
+        bool IsAction = ActionHash.Any(hash => anime.GetBool(hash));
 
         bool IsRunBlendValue = IsRunning || IsJumping || IsFalling;
         Vector2 InputTarget = IsSprinting ? playerInput.Movement * 1.5f : IsRunBlendValue ? playerInput.Movement *1f : playerInput.Movement * 0.5f;
@@ -54,5 +66,12 @@ public class PlayerAnimation : MonoBehaviour
         anime.SetFloat(InputXHash, CurrentBlendInput.x);
         anime.SetFloat (InputYHash, CurrentBlendInput.y);
         anime.SetFloat(InputMagnitudeHash,CurrentBlendInput.magnitude);
+
+        anime.SetBool(Attacking1Hash, playerInputAction.Attack1Pressed);
+        anime.SetBool(Attacking2Hash, playerInputAction.Attack2Pressed);
+        anime.SetBool(GotHitHash , playerInputAction.GotHurt);
+
+        anime.SetBool(PlayingActionHash, IsAction);
+
     }
 }
