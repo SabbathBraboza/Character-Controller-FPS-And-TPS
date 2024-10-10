@@ -7,6 +7,7 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private float LocomotionBlendSpeed = 0.2f;
 
     private Vector3 CurrentBlendInput = Vector3.zero;
+    private bool IsSwordLayerActive = false;
 
     //Movement Aniamtion Hash
     private static readonly int InputXHash = Animator.StringToHash("InputX");
@@ -43,8 +44,10 @@ public class PlayerAnimation : MonoBehaviour
         ActionHash = new int[] { Attacking1Hash, Attacking2Hash };
     }
 
-    private void Update() => UpdateAnimationState();
-    
+    private void Update()
+    {
+        UpdateAnimationState();
+    }
     private void UpdateAnimationState()
     {
         bool IsIdling = playerState.CurrentPlayerMovementState == PlayerMovementState.Idling;

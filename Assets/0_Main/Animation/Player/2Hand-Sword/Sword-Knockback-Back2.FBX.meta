@@ -379,14 +379,14 @@ ModelImporter:
     animationRetargetingWarnings: "\nRetargeting quality report for clip 'Take 001':\n\tLeftUpperArm
       average position error 2.0 mm and maximum position error 20.4 mm at time 0:
       0 (0.0%) Frame 0\n\tLeftLowerArm average position error 2.0 mm and maximum
-      position error 20.4 mm at time 0: 0 (0.0%) Frame 0\n\tLeftHand average position
-      error 2.0 mm and maximum position error 20.4 mm at time 0: 0 (0.0%) Frame 0\n\tRightUpperArm
-      average position error 2.0 mm and maximum position error 20.4 mm at time 0:26
-      (100.0%) Frame 26\n\tRightLowerArm average position error 2.0 mm and maximum
-      position error 20.5 mm at time 0:26 (100.0%) Frame 26\n\tRightHand average
-      position error 2.0 mm and maximum position error 20.4 mm at time 0:26 (100.0%)
-      Frame 26\n\tHead average position error 2.0 mm and maximum position error 20.4
-      mm at time 0:26 (100.0%) Frame 26\n"
+      position error 20.4 mm at time 0:26 (100.0%) Frame 26\n\tLeftHand average position
+      error 2.0 mm and maximum position error 20.4 mm at time 0:26 (100.0%) Frame
+      26\n\tRightUpperArm average position error 2.0 mm and maximum position error
+      20.4 mm at time 0: 0 (0.0%) Frame 0\n\tRightLowerArm average position error
+      2.0 mm and maximum position error 20.5 mm at time 0: 0 (0.0%) Frame 0\n\tRightHand
+      average position error 2.0 mm and maximum position error 20.4 mm at time 0:
+      0 (0.0%) Frame 0\n\tHead average position error 2.0 mm and maximum position
+      error 20.4 mm at time 0: 0 (0.0%) Frame 0\n"
     animationDoRetargetingWarnings: 1
     importAnimatedCustomProperties: 0
     importConstraints: 0
@@ -422,21 +422,7 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events:
-      - time: 0.41298705
-        functionName: FootL
-        data: 
-        objectReferenceParameter: {instanceID: 0}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
-      - time: 0.6233619
-        functionName: FootR
-        data: 
-        objectReferenceParameter: {instanceID: 0}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
+      events: []
       transformMask: []
       maskType: 3
       maskSource: {fileID: 101100000, guid: 3e4e408fdcc93ee468a1275b69104d63, type: 2}
