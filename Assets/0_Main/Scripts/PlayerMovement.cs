@@ -1,33 +1,34 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
-[DefaultExecutionOrder(-1)]
+[DefaultExecutionOrder(-1)] // Order Of Execution is Changed to Run the Script before Everything
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement Values:")]
-    public float WalkAcceleration = 1f;
-    public float WalkSpeed = 1.5f;
-    public float RunAcceleration = 0.25f;
-    public float RunSpeed = 4f;
-    public float SprintAccelreation = 0.5f;
-    public float SprintSpeed = 7f;  
-    public float Drag = 0.1f;
-    public float MovingThreshold = 0.01f;
-    public float Gravity = 25f;
-    public float JumpSpeed = 1f;
-    public float InAirAccleration = 0.15f;
-    public float TermaialVelocity = 2f;
+    [Header("Movement Values:")] //the Values have changed in the Editor
+    public float WalkAcceleration = 1f;      // Player Walk Acceleration 
+    public float WalkSpeed = 1.5f;           // PLayer Walk Speed 
+    public float RunAcceleration = 0.25f;    //Player Run Acceleration 
+    public float RunSpeed = 4f;               //Player Run Speed 
+    public float SprintAccelreation = 0.5f;   // Player Sprint Acceleration 
+    public float SprintSpeed = 7f;            // Player SprintSpeed
+    public float Drag = 0.1f;                 // To incerase Player Drag while Walking, Running and Sprinting
+    public float MovingThreshold = 0.01f;     // Player moving limit 
+
+    [Header("Jump Values:")]   //the Values have changed in the Editor
+    public float Gravity = 25f;            // The Gravity applied on Player     
+    public float JumpSpeed = 1f;           // Player Jump Force
+    public float InAirAccleration = 0.15f; 
+    public float TermaialVelocity = 2f;    // Descrese the Player Velocity while in Air
 
     [Space(5f)]
-    [Header("Camera Settings:")]
-    public float LookSenseH = 0.1f;
-    public float LookSensev = 0.1f;
-    public float LookLimitV = 90f;
+    [Header("Camera Settings:")]   //the Values have changed in the Editor
+    public float LookSenseH = 0.1f;      // PLayer look Horizontal Sensitivity
+    public float LookSensev = 0.1f;      // PLayer look Vertical Sensitivity
+    public float LookLimitV = 90f;       // Player look Vertical Limit angle
 
     [Space(5f)]
     [Header("Animation:")]
-    public float PlayerModelRotationSpeed = 10f;
-    public float RotationTargetTime = 0.25f;
+    public float PlayerModelRotationSpeed = 10f;  //Player RotationSpeed 
+    public float RotationTargetTime = 0.25f;       
 
     [Space(5f)]
     [Header("Environment Layer:")]
@@ -38,10 +39,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private CharacterController characterController;
     [SerializeField] private Camera PlayerCamera;
 
-    public float RotationMisMatch { get; private set; } = 0f;
-    public bool IsRotatingToTarget {  get; private set; } = false;
+    public float RotationMisMatch { get; private set; } = 0f;       // To Make Sure The Player Rotates on camera rotation 
+    public bool IsRotatingToTarget {  get; private set; } = false;  // To Check the Player is Rotating  
 
-    private PlayerMovementState lastMovementState = PlayerMovementState.Falling;
+    private PlayerMovementState lastMovementState = PlayerMovementState.Falling; 
 
     private PlayerInput playerInput;
     private PlayerState playerState;
@@ -52,17 +53,16 @@ public class PlayerMovement : MonoBehaviour
     private bool JumpLastframe = false;
     private bool IsRotatingClockWise = false;
 
-    private float rotationToTargetTimer = 0f;
-    private float VerticalVelocity = 0f;
-    private float AntiBump;
-    private float StepOffset;
+    private float rotationToTargetTimer = 0f;     //Rotation Timer for the Player
+    private float VerticalVelocity = 0f;          
+    private readonly float AntiBump = 2f;          // it is Used Slope         
+    private float StepOffset;                      // Player StepOffset
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerState = GetComponent<PlayerState>();
 
-        AntiBump = WalkSpeed;
         StepOffset = characterController.stepOffset;
     }
 
@@ -77,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     {
         lastMovementState = playerState.CurrentPlayerMovementState;
 
+        // Bool Check 
         bool canRun = CanRun();
         bool isMovementInput = playerInput.Movement != Vector2.zero;
         bool isMovingLaterally = IsMovingLaterally();
@@ -84,9 +85,11 @@ public class PlayerMovement : MonoBehaviour
         bool isWalking = isMovingLaterally && (!canRun || playerInput.WalkToggleOn);
         bool isGrounded = IsGrounded();
 
+        // Player State Check
         PlayerMovementState lateralState = isWalking ? PlayerMovementState.Walking :
             isSprintLaterally ? PlayerMovementState.Sprinting :
             isMovingLaterally || isMovementInput ? PlayerMovementState.Running : PlayerMovementState.Idling;
+
         playerState.SetPlayerMovementState(lateralState);
 
         // Character Jumps
@@ -107,9 +110,7 @@ public class PlayerMovement : MonoBehaviour
             characterController.stepOffset = StepOffset;
         }
     }
-
-
-    private Vector3 HandlwSteepWalls(Vector3 Velocity)
+    private Vector3 HandlwSteepWalls(Vector3 Velocity)  // Handle The Wall Logic
     {
         Vector3 normal = CharacterUtility.GetNormalWithSphereCast(characterController, GroundLayer);
         float angle = Vector3.Angle(normal, Vector3.up);
@@ -155,7 +156,10 @@ public class PlayerMovement : MonoBehaviour
 
         VerticalVelocity -= Gravity * Time.deltaTime;
 
-        if (IsGrounded && VerticalVelocity < 0) VerticalVelocity = -AntiBump;
+        if (IsGrounded && VerticalVelocity < 0) 
+        { 
+            VerticalVelocity = -AntiBump;
+        }
 
         if (playerInput.JumpPressed && IsGrounded)
         {
@@ -173,10 +177,9 @@ public class PlayerMovement : MonoBehaviour
             VerticalVelocity = -1f *Mathf.Abs(TermaialVelocity);
         }
     }
-
     private void LateUpdate() => UpdateCameraRotation();
 
-     #region Camera 
+     #region Camera Logic
     private void UpdateCameraRotation()
     {
         CameraRotation.x += LookSenseH * playerInput.Look.x;
@@ -188,11 +191,15 @@ public class PlayerMovement : MonoBehaviour
         bool isIdling = playerState.CurrentPlayerMovementState == PlayerMovementState.Idling;
         IsRotatingToTarget = rotationToTargetTimer > 0;
 
-        if (!isIdling) RotatePlayerToTarget();
+        if (!isIdling)
+        {
+            RotatePlayerToTarget();
+        }
         else if (Mathf.Abs(RotationMisMatch) > RotationTolerance || IsRotatingToTarget)
         {
             UpdateIdleRotation(RotationTolerance);
         }
+
         PlayerCamera.transform.rotation = Quaternion.Euler(CameraRotation.y, CameraRotation.x, 0f);
 
         //Get angle between Camera And Player
@@ -228,7 +235,6 @@ public class PlayerMovement : MonoBehaviour
     private bool IsMovingLaterally()
     {
         Vector3 LateralVelocity =  new Vector3(characterController.velocity.x,characterController.velocity.y,characterController.velocity.z);
-
         return LateralVelocity.magnitude > MovingThreshold; 
     }
 
@@ -251,8 +257,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 normal = CharacterUtility.GetNormalWithSphereCast(characterController, GroundLayer);
         float angle = Vector3.Angle(normal, Vector3.up);
         bool validAngle = angle <= characterController.slopeLimit;
-
-
         return characterController.isGrounded && validAngle;
     }
 
