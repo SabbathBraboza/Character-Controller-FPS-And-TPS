@@ -5,7 +5,6 @@ using static PlayerController.PlayerControls;
 
 public class ThridPersonInputs : MonoBehaviour, IThirdPersonMapActions
 {
-
     public Vector2 ScrollInput {  get; private set; }
 
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
@@ -51,6 +50,6 @@ public class ThridPersonInputs : MonoBehaviour, IThirdPersonMapActions
         if (!context.performed) return;
 
         Vector2 scrollInput = context.ReadValue<Vector2>();
-        ScrollInput = -1f * scrollInput.normalized * CameraZoomSpeed;
+        ScrollInput = -1f * CameraZoomSpeed * scrollInput.normalized;
     }
 }
